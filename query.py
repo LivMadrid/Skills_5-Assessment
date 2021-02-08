@@ -56,18 +56,29 @@ def print_directory():
     You may only use ONE query to retrieve initial data. (Hint: leverage a
     SQLAlchemy relationship to retrieve additional information)
     """
-    humans_and_animals = db.session.query(Human.fname,
-                    Human.lname,
-                    Human.human_id,
-                    Animal.name,
-                    Animal.animal_species).join(Animal)
+    # humans_and_animals = db.session.query(Human.fname,
+    #                 Human.lname,
+    #                 Animal.name,
+    #                 Animal.animal_species).join(Animal)
     
-    # all_humans_all_animals =  humans_and_animals.group_by(Human.fname, Human.lname, Human.human_id, Animal.name, Animal.animal_species)
+    # # all_humans_all_animals =  humans_and_animals.group_by(Human.fname, Human.lname, Human.human_id, Animal.name, Animal.animal_species)
 
-   
+    # all_humans_all_animals = humans_and_animals.all()
 
-    # for fname, lname, name in humans_and_animals :
-    #     return fname, lname, name
+    # for fname, lname, name in all_humans_all_animals :
+    #     return fname, lname, name   # this above code errors saying that too many variables to unpack... expect 3 got 3 ...
+
+    #this code works but only for one person:bob.... print_directory()>>>('Bob', 'Personne', 'Fluffy', 'cat')
+    human_animal_directory_list = []
+
+    directory_humans_animals = db.session.query(Human.fname,
+                                                Human.lname,
+                                                Animal.name,
+                                                Animal.animal_species).join(Animal).all()
+
+    for fname, lname, name, animal_species in directory_humans_animals:
+        human_animal_directory_list.extend([fname, lname, name, animal_species])
+        return human_animal_directory_list
 
 def find_humans_by_animal_species(species):
     """Return a list of all humans who have animals of the given species.
@@ -80,12 +91,18 @@ def find_humans_by_animal_species(species):
     relationship! Also, you can pursue uniqueness in a Pythonic way --- you
     don't have to do it with pure SQLAlchemy)
     """
-    find_humans = db.session.query(Human.human_id).join(Animal).group_by(fname, lname).having(Animal.animal_species.like('%%'))
+    # find_humans = db.session.query(Human.human_id).join(Animal).group_by(fname, lname).having(Animal.animal_species.like('%%'))
+
+    find_humans = db.session.query(Human.fname,
+                                   Human.lname,
+                                   Animal.animal_species).join(Animal).filter(Animal.animal_species.like(':species')).all()
     
     # filter(Animal.animal_species.like('%%'))
-    find_humans.all()
+    all_humans_by_species = []
     for fname, lname in find_humans: 
-        return fname, lname
+    #     return humans.fname,  humans.lname
+        all_humans_by_species.extend([fname, lname])
+        return print(all_humans_by_species)
     
 
 if __name__ == '__main__':
